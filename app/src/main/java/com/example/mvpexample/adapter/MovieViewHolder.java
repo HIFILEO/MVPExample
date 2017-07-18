@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.example.mvpexample.R;
 import com.example.mvpexample.model.MovieViewInfo;
+import com.example.mvpexample.viewcontroller.MovieDetailsActivity;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -32,7 +33,7 @@ import butterknife.BindView;
 /**
  * {@link MovieViewInfo} holder.
  */
-public class MovieViewHolder extends BaseViewHolder {
+public class MovieViewHolder extends BaseViewHolder implements View.OnClickListener {
     @BindView(R.id.nameTextView)
     TextView nameTextView;
     @BindView(R.id.moviePosterImageView)
@@ -46,6 +47,7 @@ public class MovieViewHolder extends BaseViewHolder {
 
     public MovieViewHolder(View itemView) {
         super(itemView);
+        itemView.setOnClickListener(this);
     }
 
     /**
@@ -68,5 +70,10 @@ public class MovieViewHolder extends BaseViewHolder {
         Picasso.with(moviePosterImageView.getContext())
                 .load(movieViewInfo.getPictureUrl())
                 .into(moviePosterImageView);
+    }
+
+    @Override
+    public void onClick(View clickedView) {
+        MovieDetailsActivity.startActivity(clickedView.getContext());
     }
 }
