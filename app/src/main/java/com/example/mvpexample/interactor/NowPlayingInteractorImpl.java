@@ -36,6 +36,11 @@ import timber.log.Timber;
  */
 @ActivityScope
 public class NowPlayingInteractorImpl implements NowPlayingInteractor {
+
+    /*
+    Note - don't use static references in production code. Use Fragment retain state, application class,
+    or some other mechanism to properly manage thread object and state.
+     */
     @VisibleForTesting
     protected static LoadDataThread loadDataThread;
 

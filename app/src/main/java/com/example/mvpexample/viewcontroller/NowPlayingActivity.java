@@ -50,6 +50,11 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
         NowPlayingListAdapter.OnLoadMoreListener {
     private static final String LAST_SCROLL_POSITION = "LAST_SCROLL_POSITION";
     private static final String LOADING_DATA = "LOADING_DATA";
+
+    /*
+    Note - don't use static references in production code. Save all data in bundle or use ViewModel
+    to save data during rotation only. It's here only as a quick way to hack example together.
+     */
     private static List<MovieViewInfo> movieViewInfoList = new ArrayList<>();
     private NowPlayingListAdapter nowPlayingListAdapter;
 
