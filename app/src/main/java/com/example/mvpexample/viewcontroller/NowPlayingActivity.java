@@ -19,6 +19,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 package com.example.mvpexample.viewcontroller;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +36,7 @@ import com.example.mvpexample.model.MovieViewInfo;
 import com.example.mvpexample.presenter.NowPlayingPresenter;
 import com.example.mvpexample.presenter.NowPlayingViewModel;
 import com.example.mvpexample.view.DividerItemDecoration;
+import com.example.mvpexample.viewmodel.NowPlayingAndroidViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import timber.log.Timber;
 
 
 /**
@@ -50,7 +54,9 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
         NowPlayingListAdapter.OnLoadMoreListener {
     private static final String LAST_SCROLL_POSITION = "LAST_SCROLL_POSITION";
     private static final String LOADING_DATA = "LOADING_DATA";
-    private static List<MovieViewInfo> movieViewInfoList = new ArrayList<>();
+    private static int reference;
+    private static ViewModelProvider viewModelProvider;
+    private NowPlayingAndroidViewModel nowPlayingAndroidViewModel;
     private NowPlayingListAdapter nowPlayingListAdapter;
 
     @Inject
@@ -69,6 +75,33 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
 
+        //up reference
+        reference++;
+
+        //Load Android View Model
+        if (viewModelProvider != null) {
+            if (viewModelProvider.equals(ViewModelProviders.of(this))) {
+                Timber.i("viewModelProvider is the same");
+            } else {
+                Timber.i("viewModelProvider is different");
+            }
+        }
+
+        viewModelProvider = ViewModelProviders.of(this);
+        nowPlayingAndroidViewModel = viewModelProvider.get(NowPlayingAndroidViewModel.class);
+
+        if (savedInstanceState == null) {
+            Timber.i("***** onCreate(NEW) " +
+                    "#" + reference +
+                    (nowPlayingAndroidViewModel.getMovieViewInfoList().isEmpty() ? " - viewModel isEmpty " : " - viewModel hasData ") +
+                    "*****");
+        } else {
+            Timber.i("***** onCreate(FROM SAVED STATE " +
+                    "#" + reference +
+                    (nowPlayingAndroidViewModel.getMovieViewInfoList().isEmpty() ? " - viewModel isEmpty " : " - viewModel hasData ") +
+                    "*****");
+        }
+
         // Sets the Toolbar to act as the ActionBar for this Activity window.
         // Make sure the toolbar exists in the activity and is not null
         toolbar.setTitle(getString(R.string.now_playing));
@@ -80,12 +113,26 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
 
     @Override
     public void onStart() {
+        Timber.i("***** onStart() #" + reference + " *****");
         super.onStart();
         nowPlayingPresenter.onStart();
     }
 
     @Override
+    public void onResume() {
+        Timber.i("***** onResume() #" + reference + "*****");
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        Timber.i("***** onPause() #" + reference + "*****");
+        super.onPause();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
+        Timber.i("***** onSaveInstanceState() #" + reference + "*****");
         super.onSaveInstanceState(outState);
         outState.putParcelable(LAST_SCROLL_POSITION, recyclerView.getLayoutManager().onSaveInstanceState());
         outState.putBoolean(LOADING_DATA, nowPlayingListAdapter.isLoadingMoreShowing());
@@ -93,8 +140,21 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
 
     @Override
     public void onStop() {
+        Timber.i("***** onStop() #" + reference + "*****");
         super.onStop();
         nowPlayingPresenter.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Timber.i("***** onDestroy() #" + reference + "*****");
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        Timber.i("***** finish() *****");
     }
 
     @Override
@@ -126,7 +186,7 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
                 savedInstanceState.getParcelable(LAST_SCROLL_POSITION);
         recyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
 
-        if (!movieViewInfoList.isEmpty()) {
+        if (!nowPlayingAndroidViewModel.getMovieViewInfoList().isEmpty()) {
             nowPlayingPresenter.dataRestored();
         }
     }
@@ -134,7 +194,7 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
     @Override
     public void createAdapter(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            movieViewInfoList.clear();
+            nowPlayingAndroidViewModel.getMovieViewInfoList().clear();
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -142,7 +202,10 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
                 this,
                 DividerItemDecoration.VERTICAL_LIST,
                 getResources().getColor(android.R.color.black, null)));
-        nowPlayingListAdapter = new NowPlayingListAdapter(movieViewInfoList, this, recyclerView,
+        nowPlayingListAdapter = new NowPlayingListAdapter(
+                nowPlayingAndroidViewModel.getMovieViewInfoList(),
+                this,
+                recyclerView,
                 savedInstanceState != null && savedInstanceState.getBoolean(LOADING_DATA));
         recyclerView.setAdapter(nowPlayingListAdapter);
     }
