@@ -41,6 +41,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import timber.log.Timber;
 
 
 /**
@@ -66,6 +67,15 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Timber.i("***** onCreate(NEW) " +
+                    (movieViewInfoList.isEmpty() ? " - static isEmpty " : " - static hasData ") +
+                    "*****");
+        } else {
+            Timber.i("***** onCreate(FROM SAVED STATE " +
+                    (movieViewInfoList.isEmpty() ? " - static isEmpty " : " - static hasData ") +
+                    "*****");
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
 
@@ -80,12 +90,26 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
 
     @Override
     public void onStart() {
+        Timber.i("***** onStart() *****");
         super.onStart();
         nowPlayingPresenter.onStart();
     }
 
     @Override
+    public void onResume() {
+        Timber.i("***** onResume() *****");
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        Timber.i("***** onPause() *****");
+        super.onPause();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
+        Timber.i("***** onSaveInstanceState() *****");
         super.onSaveInstanceState(outState);
         outState.putParcelable(LAST_SCROLL_POSITION, recyclerView.getLayoutManager().onSaveInstanceState());
         outState.putBoolean(LOADING_DATA, nowPlayingListAdapter.isLoadingMoreShowing());
@@ -93,8 +117,21 @@ public class NowPlayingActivity extends BaseActivity implements NowPlayingViewMo
 
     @Override
     public void onStop() {
+        Timber.i("***** onStop() *****");
         super.onStop();
         nowPlayingPresenter.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Timber.i("***** onDestroy() *****");
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        Timber.i("***** finish() *****");
     }
 
     @Override

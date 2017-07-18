@@ -3,6 +3,7 @@ package com.example.mvpexample.dagger;
 import android.app.Activity;
 
 import com.example.mvpexample.viewcontroller.BaseActivity;
+import com.example.mvpexample.viewcontroller.MovieDetailsActivity;
 import com.example.mvpexample.viewcontroller.NowPlayingActivity;
 
 import dagger.Binds;
@@ -16,7 +17,8 @@ import dagger.multibindings.IntoMap;
  */
 @Module(subcomponents = {
         BaseActivitySubComponent.class,
-        NowPlayingActivitySubComponent.class
+        NowPlayingActivitySubComponent.class,
+        MovieDetailsActivitySubComponent.class
     }
 )
 public abstract class ActivitySubComponentBuilderModule {
@@ -32,4 +34,10 @@ public abstract class ActivitySubComponentBuilderModule {
     @ActivityKey(NowPlayingActivity.class)
     abstract AndroidInjector.Factory<? extends Activity> bindNowPlayingInjectorFactory(
             NowPlayingActivitySubComponent.Builder builder);
+
+    @Binds
+    @IntoMap
+    @ActivityKey(MovieDetailsActivity.class)
+    abstract AndroidInjector.Factory<? extends Activity> bindMovieDetailsActivityFactory(
+            MovieDetailsActivitySubComponent.Builder builder);
 }
