@@ -1,20 +1,20 @@
-#STATIC LEAK EXAMPLE - DO NOT MERGE
-THIS BRANCH IS NOT TO BE MERGE IN. It's here only as an example of static references causing memory problems.
+#VIEWMODEL LEAK EXAMPLE - DO NOT MERGE
+THIS BRANCH IS NOT TO BE MERGE IN. It's here only as an example of viewmodel references causing memory problems.
 
 ##ISSUE
-Using a static reference to hold data for activities, in order to avoid the rotation
-restore problem, has three major issues. 
+Using a viewmodel reference to hold data for activities, in order to avoid the rotation
+restore problem, has two major issues. 
 
-1. Static data is not cleared upon activity death. Meaning we are bloating the size of the 
-application's foot print. Which means application is more likely to be removed from memory by OS.
-2. Static data is not saved (normally). This means when the activity is re-created after the OS removes
-<b>application</b> from memory, you can't restore your state. 
-3. You cannot use the same activity class more than once at the same time because they will both
-rely on the same static reference. This means if you have an Activity called A and you create two 
-instances of A at the same time (A1 & A2), both will reference and modify the same static variable.
-
-Note - although you can use SingleInstance here to mitigate this problem, it's not true you want
- to do that in every case. Ex - sharing an activity that simply launches a webpage from w/in the app.
+1. Android's ViewModel data is not saved. This means when the activity is re-created after the OS removes
+<b>application</b> from memory, you can't restore your state.
+ 
+### Improvements over static references
+Android ViewModel improves over statics in very important ways.
+ 
+1. ViewModels are cleaned up when an Activity is finished. 
+2. ViewModels are tied to a specific activity, even when there are multiple instances at the same time. This
+means if you have an Activity called A and you create two instances of A at the same time (A1 & A2), 
+both will reference two separate view models. Only fragments and activities can share same view model.
  
 ## How to reproduce
 In order to reproduce this static memory leak when the OS gets destroyed you do the following steps.
